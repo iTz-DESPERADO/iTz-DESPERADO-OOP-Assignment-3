@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace Generics.Store.Common
 {
-    internal class Store<T>
+    internal class Store<T> where T : IHasId
     {
         private List<T> _values = [];
         public void Add(T value)
