@@ -7,24 +7,26 @@ namespace Generics.Store.Common
 {
     internal class Store<T> where T : IHasId
     {
-        private List<T> _values = [];
+        private readonly Dictionary<int, T> _values = new();
+
         public void Add(T value)
         {
             ArgumentNullException.ThrowIfNull(value);
-            _values.Add(value);
+
+            if (!_values.TryAdd(value.Id, value))
+                throw new InvalidOperationException(
+                    $"An item with Id {value.Id} already exists.");
         }
 
         public T? GetById(int id)
-            => _values.FirstOrDefault(v => v.Id == id);
+            => _values.TryGetValue(id, out var value)
+                ? value
+                : default;
 
         public IReadOnlyList<T> GetAll()
-            => _values.Count > 0 ? _values : [];
+            => _values.Values.ToList().AsReadOnly();
 
         public void Remove(int id)
-        {
-            var result = GetById(id);
-            if (result is null) return;
-            _values.Remove(result);
-        }
+            => _values.Remove(id);
     }
 }
